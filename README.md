@@ -1,1 +1,1 @@
-Backup directory for HomeAssistant installation
+Backup directory for HomeAssistant installation.
