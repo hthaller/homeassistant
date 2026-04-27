@@ -1,0 +1,31 @@
+- id: '1763029892920'
+  alias: inverter
+  description: ''
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: 0
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.shellypro3_switch_0
+  mode: single
+- id: '1763030098655'
+  alias: Garagentor Transit
+  description: Setzt den Transit-Sensor 10 Sekunden bei Tasterimpuls
+  triggers:
+  - entity_id: switch.garagentor
+    to: 'on'
+    trigger: state
+  actions:
+  - target:
+      entity_id: input_boolean.garagentor_transit
+    action: input_boolean.turn_on
+  - delay: 00:00:15
+  - target:
+      entity_id: input_boolean.garagentor_transit
+    action: input_boolean.turn_off
+  mode: restart
