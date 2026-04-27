@@ -1,0 +1,59 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+homeassistant:
+  packages: !include_dir_named packages
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+logger:
+  default: info
+  logs:
+     homeassistant.components.rest: info
+
+input_boolean:
+  garagentor_transit:
+    name: Garagentor Transit
+    initial: off
+
+template:
+  - sensor:
+      ### Home Power
+      - name: "Solax Local Home Power"
+        unique_id: solax_local_home_power
+        state: >
+          {{ 
+            (states('sensor.solax_pv_power_total')|float(0))
+            - (states('sensor.solax_battery_1_power_charge')|float(0))
+            - (states('sensor.solax_measured_power')|float(0))
+          }}
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+
+      ### Home Consumed Energy today
+      - name: "Solax Local Home Consumed Energy today"
+        unique_id: solax_local_home_consumed_energy_today
+        state: >
+          {{ 
+            (states('sensor.solax_today_s_solar_energy')|float(0))
+            - (states('sensor.solax_today_s_export_energy')|float(0))
+            + (states('sensor.solax_today_s_import_energy')|float(0))
+            - (states('sensor.solax_battery_input_energy_today')|float(0))
+            + (states('sensor.solax_battery_output_energy_today')|float(0))
+          }}
+        unit_of_measurement: "kWh"
+        state_class: total_increasing
+        device_class: energy
+
+
+###########################################################################################################
+
+#sensor: !include sensor.yaml
+
