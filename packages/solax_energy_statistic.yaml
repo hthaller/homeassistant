@@ -1,0 +1,189 @@
+# sensors.yaml oder als Package-Datei (z. B. in /config/packages/solax_energy_statistics.yaml)
+
+template:
+  - sensor:
+      - name: "Solax Eigenverbrauch gesamt"
+        unique_id: solax_self_consumption_total
+        state: >
+          {{
+            (
+              states('sensor.solax_total_solar_energy') | float
+              - states('sensor.solax_grid_export_total') | float
+            ) + (
+              states('sensor.solax_battery_output_energy_total') | float
+              - states('sensor.solax_battery_input_energy_total') | float
+            )
+          }}
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        availability: >
+          {{
+            states('sensor.solax_total_solar_energy') not in ['unavailable', 'unknown']
+            and states('sensor.solax_grid_export_total') not in ['unavailable', 'unknown']
+            and states('sensor.solax_battery_output_energy_total') not in ['unavailable', 'unknown']
+            and states('sensor.solax_battery_input_energy_total') not in ['unavailable', 'unknown']
+          }}
+#ok
+  - sensor:
+      - name: "Energy Production Tomorrow Total"
+        unique_id: energy_production_tomorrow_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {{ 
+            (states('sensor.energy_production_tomorrow_2') | float(0)) +
+            (states('sensor.energy_production_tomorrow_6') | float(0)) +
+            (states('sensor.energy_production_tomorrow') | float(0))
+          }}
+#ok
+  - sensor:
+      - name: "Energy Production Current Hour Total"
+        unique_id: energy_current_hour_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {{ 
+            (states('sensor.energy_current_hour_2') | float(0)) +
+            (states('sensor.energy_current_hour_6') | float(0)) +
+            (states('sensor.energy_current_hour') | float(0))
+          }}
+
+
+  - sensor:
+      - name: "Energy Production Next Hour Total"
+        unique_id: energy_next_hour_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {{ 
+            (states('sensor.energy_next_hour_2') | float(0)) +
+            (states('sensor.energy_next_hour_6') | float(0)) +
+            (states('sensor.energy_next_hour') | float(0))
+          }}
+#ok
+  - sensor:
+      - name: "Energy Production Remaining Today Total"
+        unique_id: energy_production_today_remaining_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {{ 
+            (states('sensor.energy_production_today_remaining_2') | float(0)) +
+            (states('sensor.energy_production_today_remaining_6') | float(0)) +
+            (states('sensor.energy_production_today_remaining') | float(0))
+          }}
+#ok
+  - sensor:
+      - name: "Energy Production Today Total"
+        unique_id: energy_production_today_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {{ 
+            (states('sensor.energy_production_today_2') | float(0)) +
+            (states('sensor.energy_production_today_6') | float(0)) +
+            (states('sensor.energy_production_today') | float(0))
+          }}
+
+# === STATISTIK-SENSOR: 5-Minuten-Durchschnitt ===
+sensor:
+  - platform: statistics
+    name: "Grid export Average 5min"
+    entity_id: sensor.solax_measured_power
+    unique_id: grid_export_average_5min
+    state_characteristic: mean
+    max_age:
+      minutes: 5
+    sampling_size: 100
+
+# === DEBUG SWITCH ===
+input_boolean:
+  debug_mode:
+    name: Debugmodus
+    icon: mdi:bug
+
+utility_meter:
+  solar_energy_daily:
+    source: sensor.solax_total_solar_energy
+    cycle: daily
+  solar_energy_weekly:
+    source: sensor.solax_total_solar_energy
+    cycle: weekly
+  solar_energy_monthly:
+    source: sensor.solax_total_solar_energy
+    cycle: monthly
+  solar_energy_yearly:
+    source: sensor.solax_total_solar_energy
+    cycle: yearly
+
+  grid_import_daily:
+    source: sensor.solax_grid_import_total
+    cycle: daily
+  grid_import_weekly:
+    source: sensor.solax_grid_import_total
+    cycle: weekly
+  grid_import_monthly:
+    source: sensor.solax_grid_import_total
+    cycle: monthly
+  grid_import_yearly:
+    source: sensor.solax_grid_import_total
+    cycle: yearly
+
+  grid_export_daily:
+    source: sensor.solax_grid_export_total
+    cycle: daily
+  grid_export_weekly:
+    source: sensor.solax_grid_export_total
+    cycle: weekly
+  grid_export_monthly:
+    source: sensor.solax_grid_export_total
+    cycle: monthly
+  grid_export_yearly:
+    source: sensor.solax_grid_export_total
+    cycle: yearly
+
+  battery_charge_daily:
+    source: sensor.solax_battery_input_energy_total
+    cycle: daily
+  battery_charge_weekly:
+    source: sensor.solax_battery_input_energy_total
+    cycle: weekly
+  battery_charge_monthly:
+    source: sensor.solax_battery_input_energy_total
+    cycle: monthly
+  battery_charge_yearly:
+    source: sensor.solax_battery_input_energy_total
+    cycle: yearly
+
+  battery_discharge_daily:
+    source: sensor.solax_battery_output_energy_total
+    cycle: daily
+  battery_discharge_weekly:
+    source: sensor.solax_battery_output_energy_total
+    cycle: weekly
+  battery_discharge_monthly:
+    source: sensor.solax_battery_output_energy_total
+    cycle: monthly
+  battery_discharge_yearly:
+    source: sensor.solax_battery_output_energy_total
+    cycle: yearly
+
+  self_consumption_daily:
+    source: sensor.solax_self_consumption_total
+    cycle: daily
+  self_consumption_weekly:
+    source: sensor.solax_self_consumption_total
+    cycle: weekly
+  self_consumption_monthly:
+    source: sensor.solax_self_consumption_total
+    cycle: monthly
+  self_consumption_yearly:
+    source: sensor.solax_self_consumption_total
+    cycle: yearly
+

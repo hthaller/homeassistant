@@ -1,0 +1,99 @@
+###########################################################################################################
+# INVERTER
+###########################################################################################################
+
+script:
+  set_inverter_manual:
+    alias: "Set Inverter Manual"
+    description: "Sets the inverter mode manually depending on the 'mode' parameter."
+    mode: single
+    fields:
+      mode:
+        description: "Desired operation mode (selfuse, feedin, discharge, charge, automatic)"
+        example: "selfuse"
+        selector:
+          select:
+            options:
+              - selfuse
+              - feedin
+              - discharge
+              - charge
+              - automatic
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ mode == 'selfuse' }}"
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_charger_use_mode
+                data:
+                  option: "Self Use Mode"
+              - service: automation.turn_off
+                target:
+                  entity_id: automation.inverter
+
+          - conditions:
+              - condition: template
+                value_template: "{{ mode == 'feedin' }}"
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_charger_use_mode
+                data:
+                  option: "Feedin Priority"
+              - service: automation.turn_off
+                target:
+                  entity_id: automation.inverter
+
+          - conditions:
+              - condition: template
+                value_template: "{{ mode == 'discharge' }}"
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_charger_use_mode
+                data:
+                  option: "Manual Mode"
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_manual_mode_select
+                data:
+                  option: "Force Discharge"
+              - service: automation.turn_off
+                target:
+                  entity_id: automation.inverter
+
+          - conditions:
+              - condition: template
+                value_template: "{{ mode == 'charge' }}"
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_charger_use_mode
+                data:
+                  option: "Manual Mode"
+              - service: select.select_option
+                target:
+                  entity_id: select.solax_manual_mode_select
+                data:
+                  option: "Force Charge"
+              - service: automation.turn_off
+                target:
+                  entity_id: automation.inverter
+
+          - conditions:
+              - condition: template
+                value_template: "{{ mode == 'automatic' }}"
+            sequence:
+              - service: automation.turn_on
+                target:
+                  entity_id: automation.inverter
+
+      - service: system_log.write
+        data:
+          message: "Inverter mode '{{ mode }}' has been set."
+          level: info
+
+                        
