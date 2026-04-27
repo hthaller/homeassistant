@@ -1,3 +1,0 @@
-reset_grid_import:
-  name: Reset Strompreis-Tracking
-  description: Setzt das Strompreis-Tracking (Netzbezug Kosten, Durchschnittspreise) auf 0 zurück. Verwenden wenn fehlerhafte Werte durch Bug entstanden sind.
